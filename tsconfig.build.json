@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // A separate cache from the typecheck run: that one is --noEmit, and sharing one file would
+    // make each invalidate the other's record of what has been emitted.
+    "tsBuildInfoFile": ".tscache/server-build.tsbuildinfo"
+  },
+  "exclude": ["src/**/*.test.ts"]
+}
