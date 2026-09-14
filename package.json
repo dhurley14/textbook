@@ -1,0 +1,52 @@
+{
+  "name": "textbook",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Multi-tenant SMS appointment booking for barbers: Twilio + OpenAI + Google Calendar",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "bash scripts/dev.sh",
+    "dev:all": "npm-run-all --parallel dev:server dev:client",
+    "dev:server": "tsx watch src/index.ts",
+    "dev:client": "vite",
+    "build": "npm run build:server && npm run build:client",
+    "build:server": "tsc -p tsconfig.build.json",
+    "build:client": "vite build",
+    "start": "node dist/index.js",
+    "typecheck": "npm-run-all --parallel typecheck:server typecheck:client",
+    "typecheck:server": "tsc -p tsconfig.json --noEmit",
+    "typecheck:client": "tsc -p client/tsconfig.json --noEmit",
+    "test": "tsx --test src/*.test.ts",
+    "simulate": "ENV_FILE=${ENV_FILE:-.env.dev} tsx src/scripts/simulate.ts",
+    "mock:sms": "bash scripts/mock-sms.sh",
+    "seed:number": "ENV_FILE=${ENV_FILE:-.env.dev} tsx src/scripts/seedNumber.ts"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "googleapis": "^144.0.0",
+    "luxon": "^3.5.0",
+    "openai": "^4.77.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "twilio": "^5.4.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/express": "^4.17.21",
+    "@types/luxon": "^3.4.2",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.17",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "npm-run-all": "^4.1.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}

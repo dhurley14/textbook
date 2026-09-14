@@ -1,0 +1,68 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+#
+# Create the service by pointing Render at this repo (New > Blueprint). Everything below is
+# provisioned automatically except the secrets, which are marked `sync: false` and must be
+# pasted into the dashboard once.
+services:
+  - type: web
+    name: textbook
+    runtime: node
+    plan: starter # Free instances spin down when idle and can't mount disks; both break this app.
+    region: ohio
+    branch: main
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+
+    # The in-process lock in src/queue.ts and the single SQLite file both assume exactly one
+    # instance. Do not enable autoscaling here.
+    numInstances: 1
+
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1
+
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_PATH
+        value: /var/data/app.sqlite
+      - key: VALIDATE_TWILIO_SIGNATURE
+        value: "true"
+      - key: TWILIO_NUMBER_COUNTRY
+        value: US
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+
+      # APP_URL is intentionally unset: the app falls back to RENDER_EXTERNAL_URL, which Render
+      # injects with this service's real https URL. Both the Google redirect URI and the Twilio
+      # webhook are derived from it, and both must match exactly. Set APP_URL explicitly only
+      # once you attach a custom domain — and update the Google OAuth client to match.
+
+      # --- Defaults for newly signed-up barbers ---
+      - key: DEFAULT_TIMEZONE
+        value: America/New_York
+      - key: DEFAULT_BUSINESS_HOURS
+        value: 1:09:00-17:00,2:09:00-17:00,3:09:00-17:00,4:09:00-19:00,5:09:00-19:00,6:10:00-16:00
+      - key: DEFAULT_APPOINTMENT_DURATION_MINUTES
+        value: "45"
+
+      # --- Secrets: set these in the Render dashboard, they are never committed ---
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      # Encrypts barbers' Google refresh tokens. Generate with: openssl rand -hex 32
+      # Changing this value makes every stored token undecryptable and forces all barbers to
+      # reconnect Google, so set it once and keep it.
+      - key: ENCRYPTION_KEY
+        generateValue: true

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.tscache/
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+data/
+.DS_Store
